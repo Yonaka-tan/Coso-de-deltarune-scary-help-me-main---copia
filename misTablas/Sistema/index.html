@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Aprende las tablas con aventuras, juegos y desafíos matemáticos.">
+  <title>DELTARUNE — Reino de las Tablas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Pixelify+Sans:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="CSS/comun.css">
+  <link rel="stylesheet" href="CSS/sistema.css">
+</head>
+<body>
+  <video class="fondo-animado" id="fondo-animado" autoplay muted loop playsinline preload="metadata"
+         poster="../../Backgrounds/Fondo flowery.jpg" aria-hidden="true">
+    <source src="../../Backgrounds/BackgroundMenu.mp4" type="video/mp4">
+  </video>
+  <div class="velo-fondo" aria-hidden="true"></div>
+  <div class="fondo-estatico" aria-hidden="true"></div>
+  <audio id="musica-ambiente" loop preload="none"></audio>
+  <audio id="voz-flowery" preload="none"></audio>
+
+  <main class="sistema">
+    <div class="aviso-modo-debug" id="aviso-modo-debug" role="alert" hidden>
+      MODO DEBUG ACTIVADO · El progreso se muestra al 100% de forma temporal.
+      <button type="button" id="desactivar-debug-banner">Desactivar y restaurar perfil</button>
+    </div>
+    <header class="barra-superior">
+      <a class="marca" href="#inicio" aria-label="Volver al menú principal">
+        <img class="marca-palabra" src="../../Assets/300px-Chapter_5_Logo_soundtrack.png.webp" alt="DELTARUNE">
+      </a>
+      <div class="controles-musica" role="group" aria-label="Música de fondo">
+        <div class="selector-pistas">
+          <label for="seleccion-musica">Música del reino</label>
+          <select id="seleccion-musica">
+            <option value="aventura">Aventura · Who might you be / Petal Dance</option>
+            <option value="jardin">Jardín · Flower Foyer / Violet Tactics</option>
+            <option value="castillo" data-etiqueta="Jardín real · Flower Castle / Running Sky">Jardín real · Flower Castle / Running Sky</option>
+            <option value="epico" data-etiqueta="Encuentro épico · Your Dad's Best Friend / Flower Man">Encuentro épico · Your Dad's Best Friend / Flower Man</option>
+            <option value="esperanza" data-etiqueta="Jardín de esperanza · Garden of Hopes and Dreams">Jardín de esperanza · Garden of Hopes and Dreams</option>
+          </select>
+        </div>
+        <label class="sr-only" for="volumen-musica">Volumen de la música</label>
+        <input id="volumen-musica" type="range" min="0" max="1" step="0.05" value="0.25">
+        <button type="button" class="boton-musica" id="control-musica">▶ Música tranquila</button>
+        <button type="button" class="boton-pausar-musica" id="pausar-musica" disabled>Pausar</button>
+        <span id="nombre-pista-musica" class="nombre-pista-musica">Aventura · Who might you be / Petal Dance</span>
+        <span id="estado-musica" class="estado-musica" role="status" aria-live="polite">Elige una pista y presiona reproducir.</span>
+      </div>
+      <div class="identidad">
+        <div id="jugador-avatar" aria-hidden="true"></div>
+        <span id="nombre-jugador"></span>
+        <button type="button" class="boton boton-salir" id="salir">Salir</button>
+      </div>
+    </header>
+    <button type="button" class="acceso-profesor" id="abrir-profesor" aria-label="Acceso para profesores">🔒</button>
+
+    <div class="area-principal">
+      <section class="pantalla activa" id="pantalla-inicio" aria-labelledby="saludo">
+        <div class="bienvenida">
+          <div>
+            <p class="sobrelinea">TU MAPA DE AVENTURA</p>
+            <h1 id="saludo">¡Hola, viajero!</h1>
+            <p id="resumen-inicio">Cada tabla que dominas abre un nuevo camino.</p>
+          </div>
+          <div class="estado-hero" aria-label="Progreso general">
+            <span class="icono-flor icono-flor-grande" aria-hidden="true">✿</span>
+            <strong id="petalos-inicio">0</strong>
+            <span>pétalos ganados</span>
+          </div>
+        </div>
+        <aside class="notificacion-desbloqueo" id="notificacion-inicio" role="status" aria-live="polite" hidden></aside>
+        <section class="panel-desbloqueos" aria-labelledby="titulo-desbloqueos">
+          <div class="encabezado-seccion">
+            <div>
+              <p class="sobrelinea">TESOROS DEL JARDÍN</p>
+              <h2 id="titulo-desbloqueos">Desbloqueos</h2>
+            </div>
+            <span id="avance-desbloqueos">0 de 48 pétalos de dominio</span>
+          </div>
+          <div class="lista-desbloqueos" id="lista-desbloqueos"></div>
+        </section>
+
+        <aside class="companeros" aria-label="Amigos que acompañan tu aventura">
+          <p class="dialogo-companeros">¡Vamos a descubrir patrones juntos!</p>
+          <div class="grupo-amigos" id="grupo-amigos-inicio"></div>
+        </aside>
+
+        <section class="mapa-progreso" aria-labelledby="mapa-titulo">
+          <div class="encabezado-seccion">
+            <div>
+              <p class="sobrelinea">TU RECORRIDO</p>
+              <h2 id="mapa-titulo">Camino de las tablas</h2>
+            </div>
+            <span id="tablas-dominadas">0 / 12 dominadas</span>
+          </div>
+          <div class="camino-tablas" id="camino-tablas" aria-label="Progreso de las tablas del 1 al 12"></div>
+        </section>
+
+        <nav class="tarjetas-menu" aria-label="Menú principal">
+          <button type="button" class="tarjeta-menu tarjeta-aprender" data-ir="aprender">
+            <span class="icono-tarjeta" aria-hidden="true">❀</span>
+            <span class="etiqueta-tarjeta">PRÁCTICA</span>
+            <strong>Aprender tablas</strong>
+            <span>Explora grupos, patrones y pistas.</span>
+            <span class="accion-tarjeta">Abrir mapa <span aria-hidden="true">→</span></span>
+          </button>
+          <button type="button" class="tarjeta-menu tarjeta-juegos" data-ir="juegos">
+            <span class="icono-tarjeta" aria-hidden="true">✿</span>
+            <span class="etiqueta-tarjeta">MINIJUEGOS</span>
+            <strong>Juegos y desafíos</strong>
+            <span>Elige una misión y reúne pétalos.</span>
+            <span class="accion-tarjeta">Ver misiones <span aria-hidden="true">→</span></span>
+          </button>
+          <button type="button" class="tarjeta-menu tarjeta-progreso" data-ir="progreso">
+            <span class="icono-tarjeta" aria-hidden="true">❀</span>
+            <span class="etiqueta-tarjeta">TU HISTORIA</span>
+            <strong>Progreso y puntaje</strong>
+            <span id="texto-puntaje">Mira todo lo que has avanzado.</span>
+            <span class="accion-tarjeta">Ver progreso <span aria-hidden="true">→</span></span>
+          </button>
+          <button type="button" class="tarjeta-menu tarjeta-logros" data-ir="logros">
+            <span class="icono-tarjeta" aria-hidden="true">✿</span>
+            <span class="etiqueta-tarjeta">RECOMPENSAS</span>
+            <strong>Logros y medallas</strong>
+            <span id="texto-logros">Tus próximos trofeos te esperan.</span>
+            <span class="accion-tarjeta">Ver colección <span aria-hidden="true">→</span></span>
+          </button>
+          <button type="button" class="tarjeta-menu tarjeta-simce bloqueada" id="tarjeta-simce" aria-disabled="true">
+            <span class="icono-tarjeta" aria-hidden="true">❀</span>
+            <span class="etiqueta-tarjeta">GRAN DESAFÍO</span>
+            <strong>Ensayo tipo SIMCE</strong>
+            <span class="detalle-simce" id="detalle-simce">Aprueba 6 de 10 preguntas en cada módulo. Se habilita al completar 10 de 12 módulos.</span>
+            <span class="accion-tarjeta" id="estado-simce">🔒 Completa 10 módulos</span>
+          </button>
+        </nav>
+      </section>
+
+      <section class="pantalla" id="pantalla-aprender" aria-labelledby="titulo-aprender" hidden>
+        <button type="button" class="enlace-volver" data-ir="inicio">← Menú principal</button>
+        <div class="encabezado-pantalla">
+          <p class="sobrelinea">SALA DE ENTRENAMIENTO</p>
+          <h1 id="titulo-aprender">Aprender una tabla</h1>
+          <p>Primero mira cómo se forman los grupos. Luego practica a tu ritmo: puedes repetir cada reto.</p>
+        </div>
+        <div class="selector-tabla">
+          <label for="selector-tabla">Elige una tabla</label>
+          <select id="selector-tabla"></select>
+          <span id="estado-tabla" class="chip-estado"></span>
+        </div>
+        <aside class="notificacion-desbloqueo" id="notificacion-aprender" role="status" aria-live="polite" hidden></aside>
+        <div class="selector-avatar-flower" id="selector-avatar-flowery" hidden>
+          <p>¡Flowery ya puede acompañarte! Cambia entre Flowery y tu avatar cuando quieras.</p>
+          <button type="button" class="boton-suave" id="cambiar-avatar-flowery">Usar Flowery</button>
+          <span id="estado-voz-flowery" role="status" aria-live="polite"></span>
+        </div>
+        <div class="pestanas-aprendizaje" role="tablist" aria-label="Modos de aprendizaje">
+          <button type="button" class="pestana-aprendizaje seleccionada" id="pestana-practica"
+                  role="tab" aria-selected="true" aria-controls="panel-practica" data-pestana="practica">
+            <span aria-hidden="true">❀</span> Práctica guiada
+          </button>
+          <button type="button" class="pestana-aprendizaje" id="pestana-prueba"
+                  role="tab" aria-selected="false" aria-controls="panel-prueba" data-pestana="prueba">
+            <span aria-hidden="true">👂</span> Orejita: modo prueba
+          </button>
+        </div>
+        <div id="panel-practica" class="panel-pestana" role="tabpanel" aria-labelledby="pestana-practica">
+          <div class="explorador">
+            <article class="panel-exploracion">
+              <div class="encabezado-seccion">
+                <div>
+                  <p class="sobrelinea">MIRA LOS GRUPOS</p>
+                  <h2 id="titulo-modelo">Grupos de objetos</h2>
+                </div>
+                <span class="pista-visual">grupos × flores</span>
+              </div>
+              <div class="control-grupos">
+                <label for="selector-grupos">¿Cuántos grupos? <strong id="cantidad-grupos">1</strong></label>
+                <input id="selector-grupos" type="range" min="1" max="12" value="1">
+              </div>
+              <div class="modelo-grupos" id="modelo-grupos" aria-live="polite"></div>
+              <p class="ecuacion-destacada" id="ecuacion-modelo"></p>
+              <p class="explicacion-modelo" id="explicacion-modelo"></p>
+              <div class="audio-practica" role="group" aria-label="Escuchar la explicación">
+                <button type="button" class="boton-audio" id="escuchar-operacion">🔊 Escuchar multiplicación</button>
+                <button type="button" class="boton-audio" id="escuchar-resultado">🔊 Escuchar resultado</button>
+                <button type="button" class="boton-audio boton-audio-secundario" id="detener-voz">Detener voz</button>
+                <p id="estado-voz" class="estado-voz" role="status" aria-live="polite"></p>
+              </div>
+              </article>
+              <aside class="panel-patron">
+                <span class="flor-patron" aria-hidden="true">❀</span>
+                <p class="sobrelinea">PISTA DEL VIAJERO</p>
+                <h2>Descubre el patrón</h2>
+                <p id="pista-patron"></p>
+                <div class="secuencia-patron" id="secuencia-patron" aria-label="Secuencia de resultados"></div>
+              </aside>
+            </div>
+          <aside class="companeros companeros-practica" aria-label="Tus amigos te ayudan a practicar">
+            <p class="dialogo-companeros">¡Contemos en grupos! Equivocarse también ayuda a aprender.</p>
+            <div class="grupo-amigos" id="grupo-amigos-practica"></div>
+          </aside>
+          <section class="actividad-practica" aria-labelledby="titulo-actividad-practica">
+            <div class="encabezado-seccion">
+              <div>
+                <p class="sobrelinea">APRENDE JUGANDO</p>
+                <h2 id="titulo-actividad-practica">Prueba otra forma</h2>
+              </div>
+              <span class="pista-visual">Un ejemplo nuevo en cada tabla</span>
+            </div>
+            <div class="selector-actividad" role="group" aria-label="Tipo de actividad para practicar">
+              <button type="button" class="opcion-mision seleccionada" data-actividad="agrupar" aria-pressed="true">Arrastra y agrupa</button>
+              <button type="button" class="opcion-mision" data-actividad="asociar" aria-pressed="false">Asocia operación</button>
+              <button type="button" class="opcion-mision" data-actividad="corregir" aria-pressed="false">Ayuda a un amigo</button>
+            </div>
+            <p class="memoria-errores" id="memoria-errores" role="status" hidden></p>
+            <p class="instruccion-practica caja-dialogo-rpg" id="instruccion-practica"></p>
+            <div class="interaccion-practica" id="interaccion-practica"></div>
+            <p class="retroalimentacion-practica" id="retroalimentacion-practica" aria-live="polite"></p>
+          </section>
+          <section class="panel-infinito" id="panel-infinito" aria-labelledby="titulo-infinito" hidden>
+            <div class="encabezado-seccion">
+              <div>
+                <p class="sobrelinea">FLOWER MAN · MODO INFINITO</p>
+                <h2 id="titulo-infinito">Jardín sin fin</h2>
+              </div>
+              <div class="vidas-prueba" id="vidas-infinito" aria-label="Tres vidas">❀ ❀ ❀</div>
+            </div>
+            <p id="resumen-infinito" class="resumen-prueba" aria-live="polite"></p>
+            <div class="estado-partida">
+              <span id="nivel-infinito">Dificultad: 1</span>
+              <span id="cuenta-infinito">Ejercicios: 0 · Próxima vida en 5</span>
+            </div>
+            <p class="instruccion-practica caja-dialogo-rpg" id="instruccion-infinito"></p>
+            <p class="operacion-prueba" id="operacion-infinito"></p>
+            <p class="parte-prueba" id="parte-infinito"></p>
+            <div class="interaccion-prueba" id="respuestas-infinito"></div>
+            <p class="retroalimentacion-prueba" id="retroalimentacion-infinito" aria-live="polite"></p>
+            <button type="button" class="boton" id="siguiente-infinito" hidden>Siguiente</button>
+            <button type="button" class="boton" id="salir-infinito">Volver a la práctica</button>
+          </section>
+          <section class="panel-infinito panel-desbloqueo-infinito" id="tarjeta-infinito" aria-labelledby="titulo-tarjeta-infinito">
+            <div class="encabezado-seccion">
+              <div>
+                <p class="sobrelinea">NUEVO MODO</p>
+                <h2 id="titulo-tarjeta-infinito">Jardín sin fin</h2>
+              </div>
+              <span id="estado-desbloqueo-infinito">🔒 Reúne 20 de 48 pétalos de dominio</span>
+            </div>
+            <p>Tres vidas, una vida de vuelta cada cinco ejercicios y retos cada vez más variados. En este modo siempre suena Flower Man.</p>
+            <button type="button" class="boton" id="iniciar-infinito" disabled>Desbloquear con 40%</button>
+          </section>
+        </div>
+        <div id="panel-prueba" class="panel-pestana" role="tabpanel" aria-labelledby="pestana-prueba" hidden>
+          <section class="panel-prueba" aria-labelledby="titulo-modo-prueba">
+            <div class="encabezado-seccion">
+              <div>
+                <p class="sobrelinea">RETO DE LA TABLA</p>
+                <h2 id="titulo-modo-prueba">Ponte a prueba</h2>
+              </div>
+              <div class="vidas-prueba" id="vidas-prueba" aria-label="Tres vidas">❤ ❤ ❤</div>
+            </div>
+            <p class="ayuda-prueba">10 preguntas variadas con tiempo y tres vidas: elige, arrastra, asocia y ayuda a tus amigos a corregir errores. Desde la pregunta 3, el reto se adapta a tus vidas. Si terminas con más de una vida, podrás probar un desafío extra.</p>
+            <div class="resumen-prueba" id="resumen-prueba" aria-live="polite">¡Cuando quieras, comienza el reto de esta tabla!</div>
+            <div class="estado-partida">
+              <span id="numero-pregunta-prueba">Pregunta 0 de 10</span>
+              <span id="reloj-prueba" class="reloj-prueba">Tiempo: 25</span>
+              <span id="nivel-prueba" class="nivel-prueba">Nivel: listo</span>
+            </div>
+            <div class="barra-preguntas" role="progressbar" id="barra-preguntas" aria-label="Avance del reto" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0">
+              <span id="avance-preguntas"></span>
+            </div>
+            <div class="caja-pregunta">
+              <p class="instruccion-prueba" id="instruccion-prueba">¡Tú puedes! Presiona comenzar para jugar.</p>
+              <p class="operacion-prueba" id="operacion-prueba" aria-live="polite">❀ × ❀ = ?</p>
+              <p class="parte-prueba" id="parte-prueba" aria-live="polite"></p>
+              <div class="respuestas-prueba" id="respuestas-prueba"></div>
+              <p class="retroalimentacion-prueba" id="retroalimentacion-prueba" aria-live="polite"></p>
+              <div class="acciones-prueba">
+                <button type="button" class="boton" id="iniciar-prueba">Comenzar reto</button>
+                <button type="button" class="boton" id="siguiente-paso-prueba" hidden>Siguiente</button>
+                <button type="button" class="boton boton-extra" id="iniciar-extra" hidden>¡Acepto el desafío extra!</button>
+              </div>
+            </div>
+          </section>
+          <aside class="panel-petalos-tabla" aria-label="Mejor resultado en esta tabla">
+            <strong>Tu mejor resultado</strong>
+            <span class="petalos-tabla" id="petalos-tabla" aria-label="Cero de cuatro pétalos">❀ <span class="oscuro">❀ ❀ ❀</span></span>
+            <span id="texto-petalos-tabla">Aún no has completado un reto.</span>
+          </aside>
+        </div>
+      </section>
+
+      <section class="pantalla" id="pantalla-juegos" aria-labelledby="titulo-juegos" hidden>
+        <button type="button" class="enlace-volver" data-ir="inicio">← Menú principal</button>
+        <div class="encabezado-pantalla">
+          <p class="sobrelinea">MISIONES DEL REINO</p>
+          <h1 id="titulo-juegos">Juegos y desafíos</h1>
+          <p>Cada respuesta suma experiencia. Escoge un reto y comienza cuando quieras.</p>
+        </div>
+        <div class="lista-misiones">
+          <button type="button" class="mision-card" data-modo="opciones"><span>♟</span><strong>¿Quién tiene la respuesta?</strong><small>Elige al personaje con el resultado correcto.</small><b>Jugar →</b></button>
+          <button type="button" class="mision-card" data-modo="completa"><span>▣</span><strong>Completa la operación</strong><small>Escribe el producto que falta para resolver la multiplicación.</small><b>Jugar →</b></button>
+          <button type="button" class="mision-card" data-modo="detective"><span>⌕</span><strong>Detective matemático</strong><small>Usa la pista para descubrir el número oculto.</small><b>Jugar →</b></button>
+          <button type="button" class="mision-card" data-modo="tiempo"><span>◷</span><strong>Desafío contra el tiempo</strong><small>¿Cuántas respuestas puedes dar en 30 segundos?</small><b>Jugar →</b></button>
+        </div>
+        <section class="panel-mision" aria-labelledby="titulo-mision">
+          <div class="encabezado-seccion">
+            <div>
+              <p class="sobrelinea">MINIJUEGOS</p>
+              <h2 id="titulo-mision">Reto rápido</h2>
+            </div>
+            <span class="recompensa-mision"><span aria-hidden="true">❀</span> <span id="puntaje-vista">0</span> pétalos</span>
+          </div>
+          <div class="opciones-mision" role="group" aria-label="Tipo de actividad">
+            <button type="button" class="opcion-mision seleccionada" data-modo="opciones">¿Quién tiene la respuesta?</button>
+            <button type="button" class="opcion-mision" data-modo="completa">Completa la operación</button>
+            <button type="button" class="opcion-mision" data-modo="detective">Detective matemático</button>
+            <button type="button" class="opcion-mision" data-modo="tiempo">Desafío contra el tiempo</button>
+          </div>
+          <div class="reto" id="reto">
+            <p class="instruccion-reto caja-dialogo-rpg" id="instruccion-reto">Elige tu actividad y pulsa «Nueva pregunta».</p>
+            <div class="operacion-reto" id="operacion-reto" aria-live="polite">? × ? = ?</div>
+            <div class="respuestas-reto" id="respuestas-reto"></div>
+            <p class="retroalimentacion caja-dialogo-rpg" id="retroalimentacion" aria-live="polite"></p>
+            <div class="controles-reto">
+              <button type="button" class="boton" id="nueva-pregunta">Nueva pregunta</button>
+              <span id="reloj-reto" class="reloj-reto" hidden>00:30</span>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="pantalla" id="pantalla-progreso" aria-labelledby="titulo-progreso" hidden>
+        <button type="button" class="enlace-volver" data-ir="inicio">← Menú principal</button>
+        <div class="encabezado-pantalla">
+          <p class="sobrelinea">TU HISTORIA</p>
+          <h1 id="titulo-progreso">Progreso y puntaje</h1>
+          <p>Un paso a la vez: aquí puedes ver lo que ya aprendiste.</p>
+        </div>
+        <div class="resumen-estadisticas" id="resumen-estadisticas"></div>
+        <section class="panel-misiones" aria-labelledby="titulo-avance-tablas">
+          <h2 id="titulo-avance-tablas">Avance por tabla</h2>
+          <div id="avance-tablas" class="avance-tablas"></div>
+        </section>
+      </section>
+
+      <section class="pantalla" id="pantalla-logros" aria-labelledby="titulo-logros" hidden>
+        <button type="button" class="enlace-volver" data-ir="inicio">← Menú principal</button>
+        <div class="encabezado-pantalla">
+          <p class="sobrelinea">VITRINA DE RECOMPENSAS</p>
+          <h1 id="titulo-logros">Logros y medallas</h1>
+          <p>Las medallas se ganan practicando. ¡Vuelve a intentarlo para conseguir las que faltan!</p>
+        </div>
+        <div id="coleccion-logros" class="coleccion-logros"></div>
+      </section>
+
+      <section class="pantalla" id="pantalla-profesor" aria-labelledby="titulo-profesor" hidden>
+        <button type="button" class="enlace-volver" data-ir="inicio">← Menú principal</button>
+        <div class="encabezado-pantalla">
+          <p class="sobrelinea">ACCESO PARA PROFESORES</p>
+          <h1 id="titulo-profesor">Panel docente</h1>
+          <p>Resuelve los cinco ejercicios de razonamiento para habilitar el acceso especial de depuración.</p>
+        </div>
+        <section class="panel-docente" aria-labelledby="titulo-verificacion-docente">
+          <h2 id="titulo-verificacion-docente">Verificación docente</h2>
+          <p id="progreso-verificacion-docente" aria-live="polite">Ejercicio 1 de 5</p>
+          <p id="pregunta-verificacion-docente"></p>
+          <div id="respuestas-verificacion-docente" class="respuestas-docente"></div>
+          <p id="estado-verificacion-docente" role="status" aria-live="polite"></p>
+          <button type="button" class="boton" id="reiniciar-verificacion-docente" hidden>Volver a verificar</button>
+        </section>
+        <section class="panel-docente estado-debug" id="panel-control-debug" hidden aria-labelledby="titulo-control-debug">
+          <h2 id="titulo-control-debug">Acceso especial</h2>
+          <p>El modo debug presenta temporalmente 100 puntos, el 100% del avance, todas las medallas y todos los desbloqueos. Al desactivarlo, se restaura exactamente el perfil anterior y deberás verificarte de nuevo.</p>
+          <button type="button" class="boton" id="activar-debug">Activar modo debug</button>
+          <button type="button" class="boton" id="desactivar-debug-profesor" hidden>Desactivar y restaurar perfil</button>
+        </section>
+      </section>
+
+      <section class="pantalla" id="pantalla-simce" aria-labelledby="titulo-simce" hidden>
+        <section class="hoja-ensayo" aria-labelledby="titulo-simce">
+          <div class="cabecera-ensayo">
+            <button type="button" class="salir-ensayo" data-ir="inicio">Volver al menú</button>
+            <p>MATEMÁTICA · 4.º BÁSICO</p>
+            <h1 id="titulo-simce">Ensayo de resolución de problemas</h1>
+            <p>Lee cada situación y marca una alternativa. Puedes revisar tus respuestas antes de finalizar.</p>
+          </div>
+          <div class="contenido-ensayo">
+            <nav class="navegacion-ensayo" aria-label="Preguntas del ensayo" id="navegacion-preguntas-ensayo"></nav>
+            <section class="pregunta-ensayo" aria-label="Pregunta actual">
+              <p id="progreso-ensayo">Pregunta 1 de 10</p>
+              <h2 id="enunciado-ensayo"></h2>
+              <fieldset id="respuestas-ensayo" class="respuestas-ensayo">
+                <legend>Selecciona una respuesta</legend>
+              </fieldset>
+              <p id="retroalimentacion-ensayo" aria-live="polite"></p>
+              <div id="resultado-detallado-ensayo" class="resultado-detallado-ensayo" hidden></div>
+              <div class="acciones-ensayo">
+                <button type="button" class="boton-ensayo secundario" id="anterior-ensayo">Anterior</button>
+                <button type="button" class="boton-ensayo secundario" id="siguiente-ensayo">Siguiente</button>
+                <button type="button" class="boton-ensayo principal" id="finalizar-ensayo" hidden>Finalizar ensayo</button>
+                <button type="button" class="boton-ensayo principal" id="repetir-ensayo" hidden>Repetir ensayo</button>
+              </div>
+              <p id="resultado-ensayo" class="resultado-ensayo" hidden></p>
+            </section>
+          </div>
+        </section>
+      </section>
+
+      <p id="aviso-guardado" class="aviso-guardado" role="status" hidden></p>
+    </div>
+  </main>
+
+  <script src="JS/almacen.js"></script>
+  <script src="JS/avatares.js"></script>
+  <script src="JS/sistema.js"></script>
+</body>
+</html>

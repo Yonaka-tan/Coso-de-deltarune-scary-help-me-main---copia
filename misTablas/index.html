@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DELTARUNE — Reino de las Tablas</title>
+  <meta name="description" content="Aprende las tablas de multiplicar jugando: elige tu avatar y comienza tu aventura.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Pixelify+Sans:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="Sistema/CSS/comun.css">
+  <link rel="stylesheet" href="Sistema/CSS/login.css">
+</head>
+<body>
+
+  <!-- El video y la imagen alternativa se encuentran en Backgrounds/. -->
+  <video class="fondo-video" id="fondo-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+    <source src="../Backgrounds/BackgroundMenu.mp4" type="video/mp4">
+  </video>
+  <div class="fondo-velo" aria-hidden="true"></div>
+
+  <!-- Panel lateral para continuar un perfil con progreso -->
+  <aside class="cajon" id="cajon">
+    <div class="cajon-panel" id="cajon-panel" aria-labelledby="cajon-titulo">
+      <h2 id="cajon-titulo">Continuar aventura</h2>
+      <p class="ayuda">Elige tu perfil para seguir donde lo dejaste.</p>
+      <div id="cajon-contenido"></div>
+    </div>
+    <button type="button" class="cajon-pestana" id="cajon-pestana" aria-expanded="false" aria-controls="cajon-panel">
+      Continuar
+    </button>
+  </aside>
+
+  <main class="escena" id="escena">
+    <section class="caja" aria-labelledby="titulo">
+      <header class="cabecera">
+        <img class="logo" src="Sistema/IMAGEN/avatares/yellow.png" alt="Pixel art de Yellow">
+        <div>
+          <h1 id="titulo" class="titulo-logo">
+            <span class="sr-only">DELTARUNE</span>
+            <img class="logo-palabra" src="../Assets/300px-Chapter_5_Logo_soundtrack.png.webp" alt="">
+          </h1>
+          <p>Aprende multiplicando, nivel por nivel.</p>
+        </div>
+      </header>
+
+      <p class="dialogo caja-dialogo-rpg">
+        <span class="sr-only">¡Hola, viajero! Antes de entrar, dime cómo te llamas y elige tu avatar.</span>
+        <span class="escribiendo" id="dialogo-texto" aria-hidden="true"></span>
+      </p>
+
+      <form id="form-ingreso" novalidate>
+        <div class="campo">
+          <label for="nombre">Tu nombre</label>
+          <input type="text" id="nombre" name="nombre" maxlength="16" autocomplete="off"
+                 aria-describedby="error-nombre" placeholder="Por ejemplo: Luna">
+          <p class="mensaje-error" id="error-nombre" role="alert"></p>
+        </div>
+
+        <fieldset class="campo" aria-describedby="error-avatar">
+          <legend>Elige tu avatar</legend>
+          <div class="rejilla-avatares" id="rejilla-avatares"></div>
+          <p class="mensaje-error" id="error-avatar" role="alert"></p>
+        </fieldset>
+
+        <p class="mensaje-error" id="error-general" role="alert"></p>
+
+        <div class="acciones">
+          <button type="submit" class="boton">Entrar al reino</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="Sistema/JS/almacen.js"></script>
+  <script src="Sistema/JS/avatares.js"></script>
+  <script src="Sistema/JS/login.js"></script>
+</body>
+</html>
